@@ -1,4 +1,5 @@
 library(tidyverse)
+library(gganimate)
 library(lubridate)
 library(rvest)
 
@@ -58,7 +59,7 @@ slam_winners_sub %>%
     map(~ as_tibble(., .name_repair = make.names) %>% 
             arrange(desc(n))) 
 
-slam_winners_sub <- slam_winners_sub %>% 
+slam_winners_sub_long <- slam_winners_sub %>% 
     gather(slam, player, -year) %>% 
     mutate(year = year %>% factor(),
            slam = slam %>% factor(labels = c("Australian Open", "French Open", "US Open", "Wimbledon")) %>% 
@@ -68,7 +69,7 @@ slam_winners_sub <- slam_winners_sub %>%
                fct_relevel(big_four, "Other Player"))
     
     
-test <- slam_winners_sub %>% 
+cumulative_slams <- slam_winners_sub %>% 
     gather(slam, player, -year) %>% 
     mutate(indicator = 1) %>% 
     spread(player, indicator, fill = 0) %>% 
@@ -83,6 +84,21 @@ test <- slam_winners_sub %>%
            player = player %>% factor(labels = c(big_four[1:2], "Other Player", big_four[3:4])) %>% 
                fct_relevel(big_four, "Other Player"))
 
-test %>% 
+cumulative_slams %>% 
     ggplot(aes(year, cumulative_total, colour = player, group = player)) +
-    geom_line(size = 2, alpha = 0.8)
+    geom_line(size = 2, alpha = 0.8) +
+    transition_reveal(as.numeric(year))
+
+slam_winners_sub_long %>% 
+    mutate(player = if_else(player %in% big_four, "Big Four", "Other Player") %>% 
+               factor()) %>% 
+    ggplot(aes(year, slam, fill = player)) +
+    geom_tile(colour = "grey")
+
+slam_winners_sub_long %>% 
+    mutate(indicator = 1) %>% 
+    group_by(player, slam) %>% 
+    summarise(total_slams = indicator %>% sum()) %>% 
+    ggplot(aes(player, slam, fill = total_slams)) +
+    geom_raster()
+    

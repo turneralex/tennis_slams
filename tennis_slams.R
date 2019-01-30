@@ -30,7 +30,7 @@ slam_winners %>%
     flatten_dbl() %>% 
     min()
 
-# create subset dataframe for period of interest
+# create subset data frame for period of interest
 slam_winners_sub <- slam_winners %>% 
     slice(128:(nrow(.) - 1)) # remove 2019 data also
 
@@ -79,6 +79,7 @@ slam_winners_sub_long <- slam_winners_sub %>%
 
 slam_winners_sub_long 
 
+# prepare cumulative slams by player data frame
 cumulative_slams <- slam_winners_sub %>% 
     gather(slam, player, -year) %>% 
     mutate(indicator = 1) %>% 

@@ -1,6 +1,4 @@
 library(tidyverse)
-# library(gganimate)
-# library(lubridate)
 library(rvest)
 
 # wikipedia url
